@@ -46,6 +46,7 @@ _TERMINAL_STATES = {ConversationState.COMPLETED, ConversationState.FAILED}
 _VALID_TRANSITIONS: dict[ConversationState, set[ConversationState]] = {
     ConversationState.IDLE: {
         ConversationState.PROCESSING,
+        ConversationState.FAILED,
     },
     ConversationState.PROCESSING: {
         ConversationState.TOOL_USE,
@@ -219,7 +220,7 @@ class ConversationMachine:
             ConversationState.PROCESSING, event="start", metadata=meta
         )
 
-    def use_tool(self, *, tool_name: str = "", **meta: Any) -> StateTransition:
+    def use_tool(self, tool_name: str = "", **meta: Any) -> StateTransition:
         """Transition PROCESSING → TOOL_USE."""
         m = {"tool_name": tool_name, **meta} if tool_name else meta
         return self.transition(ConversationState.TOOL_USE, event="use_tool", metadata=m)

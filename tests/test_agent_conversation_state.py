@@ -135,6 +135,16 @@ def test_use_tool_with_name():
     assert tx.metadata["tool_name"] == "web_search"
 
 
+def test_use_tool_with_positional_name():
+    # The README and module docstring document positional usage:
+    # machine.use_tool("web_search")
+    m = ConversationMachine()
+    m.start()
+    tx = m.use_tool("web_search")
+    assert m.state == ConversationState.TOOL_USE
+    assert tx.metadata["tool_name"] == "web_search"
+
+
 def test_resume_from_tool_use():
     m = ConversationMachine()
     m.start()
@@ -193,6 +203,16 @@ def test_fail_from_awaiting_user():
     m.await_user()
     m.fail()
     assert m.state == ConversationState.FAILED
+
+
+def test_fail_from_idle():
+    # fail() is documented as "any non-terminal state -> FAILED",
+    # which includes the initial IDLE state.
+    m = ConversationMachine()
+    tx = m.fail(reason="aborted before start")
+    assert m.state == ConversationState.FAILED
+    assert m.is_terminal
+    assert tx.metadata["reason"] == "aborted before start"
 
 
 # ---------------------------------------------------------------------------
